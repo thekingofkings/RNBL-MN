@@ -13,10 +13,20 @@ import weka.filters.unsupervised.attribute.StringToWordVector;
 public class RNBtree {
 	
 	Node root;
+	int numClass;
+	int numAttribute;
+	int sizeD;
+	int numNode;
+	double CMDL;
 	
 	public RNBtree(String fname) {
 		Instances data = this.loadData(fname); 
 		root = new Node(data);
+		numClass = data.numClasses();
+		numAttribute = data.numAttributes();
+		sizeD = data.numInstances();
+		numNode = 1;
+		CMDL = 0;
 	}
 	
 	
@@ -49,12 +59,40 @@ public class RNBtree {
 	}
 	
 	
+	/**
+	 * RNBL-MN employs the conditional minimum description length (CMDL) score as stopping criterion.
+	 * 
+	 * @return CMDL(h|D) = sum_{node \in leaves(h)}CLL(h_node|D_node) - { log|D|/2 } * size(h);
+	 */
+	public double getCMDL() {
+		double term2 = Math.log(numNode) / 2 * sizeh();
+		double CMDL = 0;
+		
+		LinkedList<Node> queue = new LinkedList<>();
+		queue.add(root);
+		
+		while (!queue.isEmpty()) {
+			Node n = queue.removeFirst();
+			if (n.isLeaf())
+				CMDL += n.CLL;
+		}
+		
+		CMDL -= term2;
+		return CMDL;
+	}
+	
+	
+	private double sizeh() {
+		return numNode * (numClass + numClass * numAttribute);
+	}
+	
+	
 	
 	static public void main(String[] args) {
 		RNBtree r = new RNBtree("../../lab1/reuters/ship.arff");
-		System.out.printf("numAttributes: %d\nnumClasses: %d\n", r.root.D.numAttributes(), r.root.D.numClasses());
+		System.out.printf("numAttributes: %d\nnumClasses: %d\n", r.numAttribute, r.numClass);
 		
-		ArrayList<Instances> res = r.root.learnMultiNominal();
+		ArrayList<Instances> res = r.root.splitData();
 		for (Instances is : res) {
 			System.out.printf("Number of instances: %d\n", is.numInstances());
 		}
