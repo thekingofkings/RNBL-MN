@@ -4,6 +4,7 @@ package rnbl;
 import weka.core.Instances;
 
 import java.io.*;
+import java.util.*;
 
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToWordVector;
@@ -12,10 +13,10 @@ import weka.filters.unsupervised.attribute.StringToWordVector;
 public class RNBtree {
 	
 	Node root;
-	Instances data;
 	
 	public RNBtree(String fname) {
-		data = this.loadData(fname);
+		Instances data = this.loadData(fname); 
+		root = new Node(data);
 	}
 	
 	
@@ -51,7 +52,12 @@ public class RNBtree {
 	
 	static public void main(String[] args) {
 		RNBtree r = new RNBtree("../../lab1/reuters/ship.arff");
-		System.out.printf("numAttributes: %d\nnumClasses: %d\n", r.data.numAttributes(), r.data.numClasses());
+		System.out.printf("numAttributes: %d\nnumClasses: %d\n", r.root.D.numAttributes(), r.root.D.numClasses());
+		
+		ArrayList<Instances> res = r.root.learnMultiNominal();
+		for (Instances is : res) {
+			System.out.printf("Number of instances: %d\n", is.numInstances());
+		}
 	}
 
 }
