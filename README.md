@@ -2,6 +2,11 @@
 Implementation of the Recursive Naive Bayes Learner for sequence classifier
 
 
+#Keyword
+
+*Weka*, *Recursive Naive Bayes*, *Decision tree*, *Multinomial event model*, *sequence classifier*
+
+
 ## Description
 A java class for building and using a recursive Naive Bayes classifier for sequence classification. RNBL-MN is a tree of Naive Bayes classifiers, where each node is a NB classifier based on a multinominal event model.
 
