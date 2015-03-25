@@ -97,7 +97,6 @@ public class RNBtree extends Classifier{
 	
 	@Override
 	public void buildClassifier(Instances data) throws Exception {
-		System.out.println("train RNBtree.");
 		LinkedList<Node> queue = new LinkedList<>();
 		queue.add(root);
 		double prev_cmdl = Double.NEGATIVE_INFINITY;
@@ -115,6 +114,7 @@ public class RNBtree extends Classifier{
 		}
 		n.revokeSplit();
 		numNode -= res.size();
+		System.out.printf("RNBtree trained with %d nodes\n.", numNode);
 	}
 	
 	
@@ -137,14 +137,23 @@ public class RNBtree extends Classifier{
 	
 	
 	static public void main(String[] args) {
-		RNBtree r = new RNBtree("../../lab1/reuters/ship.arff");
-		System.out.printf("numAttributes: %d\nnumClasses: %d\n", r.numAttribute, r.numClass);
+		File folder = new File("../../lab1/reuters/");
+		String[] files = folder.list(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				return name.matches(".*\\.arff$");
+			}
+		});
 
 		try {
-			r.buildClassifier(r.data);
-			Evaluation eval = new Evaluation(r.data);
-			eval.crossValidateModel(r, r.data, 5, new Random(1));
-			System.out.println(eval.toClassDetailsString());
+			for (String f : files) {
+				System.out.println(f);
+				RNBtree r = new RNBtree("../../lab1/reuters/" + f);
+				System.out.printf("numAttributes: %d\nnumClasses: %d\n", r.numAttribute, r.numClass);
+				r.buildClassifier(r.data);
+				Evaluation eval = new Evaluation(r.data);
+				eval.crossValidateModel(r, r.data, 5, new Random(1));
+				System.out.println(eval.toClassDetailsString());
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
