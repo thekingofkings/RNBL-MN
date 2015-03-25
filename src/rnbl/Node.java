@@ -1,6 +1,7 @@
 package rnbl;
 
 
+import java.io.Serializable;
 import java.util.*;
 
 import weka.core.Instance;
@@ -8,7 +9,12 @@ import weka.core.Instances;
 import weka.classifiers.bayes.NaiveBayesMultinomial;
 
 
-public class Node {
+public class Node implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8438699745778637727L;
+	
 	Node parent;
 	LinkedList<Node> children;
 	Instances D;
@@ -55,7 +61,7 @@ public class Node {
 		for (Instances d : datas) {
 			Node n = new Node(d);
 			n.parent = this;
-			this.children.addLast(n);
+			this.children.add(n);
 		}
 		return datas;
 	}
@@ -89,6 +95,20 @@ public class Node {
 			return true;
 		else
 			return false;
+	}
+	
+	public Node classifyInstanceToSubtree( Instance insta ) throws Exception {
+		double[] pi;
+		pi = nbm.distributionForInstance(insta);
+		int k = pickClusterIndex(pi);
+		if (!this.isLeaf())
+			return children.get(k);
+		return null;
+	}
+	
+	
+	public double[] distributionForInstance(Instance insta) throws Exception {
+		return nbm.distributionForInstance(insta);
 	}
 	
 	

@@ -1,6 +1,9 @@
 package rnbl;
 
 
+import weka.classifiers.Classifier;
+import weka.classifiers.Evaluation;
+import weka.core.Instance;
 import weka.core.Instances;
 
 import java.io.*;
@@ -10,16 +13,22 @@ import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
 
-public class RNBtree {
+public class RNBtree extends Classifier{
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2473065824130175652L;
 	
 	Node root;
+	Instances data;
 	int numClass;
 	int numAttribute;
 	int sizeD;
 	int numNode;
 	
 	public RNBtree(String fname) {
-		Instances data = this.loadData(fname); 
+		data = this.loadData(fname); 
 		root = new Node(data);
 		numClass = data.numClasses();
 		numAttribute = data.numAttributes();
@@ -84,27 +93,45 @@ public class RNBtree {
 	}
 	
 	
+	// implement the Weka classifier interface
 	
-	public void train() {
+	@Override
+	public void buildClassifier(Instances data) throws Exception {
+		System.out.println("train RNBtree.");
 		LinkedList<Node> queue = new LinkedList<>();
 		queue.add(root);
 		double prev_cmdl = Double.NEGATIVE_INFINITY;
 		double cmdl = this.getCMDL();
 		Node n = null;
+		ArrayList<Instances> res = null;
 		while (prev_cmdl < cmdl) {
-			System.out.println(cmdl);
 			prev_cmdl = cmdl;
 			n = queue.removeFirst();
-			ArrayList<Instances> res = n.splitNode();
-			for (Instances is : res) {
-				System.out.printf("Number of instances: %d\t", is.numInstances());
-			}
+			res = n.splitNode();
 			this.numNode += res.size();
 			for (Node c : n.children)
 				queue.add(c);
 			cmdl = this.getCMDL();
 		}
 		n.revokeSplit();
+		numNode -= res.size();
+	}
+	
+	
+	@Override
+	public double[] distributionForInstance(Instance instance) {
+		try {
+			Node n = root;
+			Node prev = null;
+			while (n != null) {
+				prev = n;
+				n = n.classifyInstanceToSubtree(instance);
+			}
+			return prev.distributionForInstance(instance);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new double[]{0, 0};
 	}
 	
 	
@@ -113,8 +140,17 @@ public class RNBtree {
 		RNBtree r = new RNBtree("../../lab1/reuters/ship.arff");
 		System.out.printf("numAttributes: %d\nnumClasses: %d\n", r.numAttribute, r.numClass);
 
-		r.train();
-		System.out.println(r.numNode);
+		try {
+			r.buildClassifier(r.data);
+			Evaluation eval = new Evaluation(r.data);
+			eval.crossValidateModel(r, r.data, 5, new Random(1));
+			System.out.println(eval.toClassDetailsString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
+
+
+	
 
 }
