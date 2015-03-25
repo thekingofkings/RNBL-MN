@@ -58,6 +58,7 @@ public class RNBtree extends Classifier{
 			
 			// filter -- String to word vector
 			StringToWordVector filter = new StringToWordVector();
+//			filter.setOptions(new String[]{"-C"} );
 			filter.setInputFormat(rawd);
 			d = Filter.useFilter(rawd, filter);
 		} catch (Exception e) {
@@ -155,9 +156,19 @@ public class RNBtree extends Classifier{
 				eval.crossValidateModel(r, r.data, 10, new Random(1));
 				System.out.println(eval.toClassDetailsString());
 				
+				System.out.println("Unpruned tree");
 				Evaluation e2 = new Evaluation(r.data);
-				e2.crossValidateModel(new J48(), r.data, 10, new Random(1));
+				Classifier cls = new J48();
+				cls.setOptions(new String[] {"-U", "true"});
+				e2.crossValidateModel(cls, r.data, 10, new Random(1));
 				System.out.println(e2.toClassDetailsString());
+				
+				System.out.println("Pruned tree");
+				Evaluation e3 = new Evaluation(r.data);
+				Classifier cls2 = new J48();
+				cls2.setOptions(new String[] {"-C", "0.25"});
+				e3.crossValidateModel(cls2, r.data, 10, new Random(1));
+				System.out.println(e3.toClassDetailsString());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
