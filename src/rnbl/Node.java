@@ -30,7 +30,7 @@ public class Node {
 	}
 	
 	
-	public ArrayList<Instances> splitData() {
+	private ArrayList<Instances> splitData() {
 		ArrayList<Instances> res = new ArrayList<>();
 		for (int i = 0; i < D.numClasses(); i++)
 			res.add(new Instances(D, 0));
@@ -47,6 +47,24 @@ public class Node {
 		}
 		
 		return res;
+	}
+	
+	
+	public ArrayList<Instances> splitNode() {
+		ArrayList<Instances> datas = splitData();
+		for (Instances d : datas) {
+			Node n = new Node(d);
+			n.parent = this;
+			this.children.addLast(n);
+		}
+		return datas;
+	}
+	
+	
+	public void revokeSplit() {
+		for (Node c: this.children)
+			c.parent = null;
+		this.children.clear();
 	}
 	
 	public int sizeD() {
