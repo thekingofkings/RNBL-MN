@@ -2,7 +2,7 @@
 Implementation of the Recursive Naive Bayes Learner for sequence classifier
 
 
-#Keyword
+###Keyword
 
 *Weka*, *Recursive Naive Bayes*, *Decision tree*, *Multinomial event model*, *sequence classifier*
 
@@ -23,3 +23,6 @@ For more information see,
 ## Dependencies:
 This project relys on the Weka 3.6 NaiveBayesMultinominal classifiers and other assistant functions.
 
+
+### Efficiency issue of Weka
+I add the C4.5 decision tree method in the evaluation to compare with RNBL-MN. The C4.5 takes significantly longer time to run, roughly 20 seconds for one fold. I conduct 10-fold cross validation on the 10 dataset, which is roughly 30 to 40 minues.

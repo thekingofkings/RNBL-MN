@@ -3,6 +3,7 @@ package rnbl;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
+import weka.classifiers.trees.J48;
 import weka.core.Instance;
 import weka.core.Instances;
 
@@ -151,8 +152,12 @@ public class RNBtree extends Classifier{
 				System.out.printf("numAttributes: %d\nnumClasses: %d\n", r.numAttribute, r.numClass);
 				r.buildClassifier(r.data);
 				Evaluation eval = new Evaluation(r.data);
-				eval.crossValidateModel(r, r.data, 5, new Random(1));
+				eval.crossValidateModel(r, r.data, 10, new Random(1));
 				System.out.println(eval.toClassDetailsString());
+				
+				Evaluation e2 = new Evaluation(r.data);
+				e2.crossValidateModel(new J48(), r.data, 10, new Random(1));
+				System.out.println(e2.toClassDetailsString());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
