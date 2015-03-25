@@ -124,9 +124,8 @@ public class Node implements Serializable{
 			for (int j = 0; j < D.numInstances(); j++) {
 				Instance s = D.instance(j);
 				double[] pi = nbm.distributionForInstance(s);
-				for (int i = 0; i < D.numClasses(); i++) {
-					cll += Math.log(pi[i]);
-				}
+				int cls = s.classIndex();
+				cll += Math.log(pi[cls]);
 			}
 			cll *= D.numInstances();
 		} catch (Exception e) {
